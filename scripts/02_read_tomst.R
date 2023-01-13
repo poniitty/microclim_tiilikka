@@ -6,10 +6,10 @@ library(cowplot)
 library(zoo)
 
 # Set date limits to remove implausible dates
-mind <- "2018-06-01"
-maxd <- "2022-10-04"
+mind <- as.Date("2018-06-01", tz = "Etc/GMT-2")
+maxd <- as.Date("2022-10-04", tz = "Etc/GMT-2")
 
-raw_data_dir <- "C:/Users/OMISTAJA/OneDrive - University of Helsinki/Kesä2022/Tiilikka_pisa_data_2022/Tiilikka"
+raw_data_dir <- "/scratch/project_2003061/microclim/Tiilikka"
 
 #################################################################################3
 # Read year 2020 site visiting times
@@ -1344,7 +1344,7 @@ for(i in sites){
       
       # Cross correlate site to others and extract the site with highest correlation
       temp1 %>%
-        left_join(., dfc) %>%
+        left_join(., dfc, by = "datetime") %>%
         filter(site != i) %>%
         mutate(T1 = ifelse(probl %in% c(0,3), T1, NA)) %>% 
         arrange(site, datetime) %>% 
@@ -1354,7 +1354,7 @@ for(i in sites){
         slice(1) %>% pull(site) -> site_to_compare
       
       temp1 %>%
-        left_join(., dfc %>% filter(site == site_to_compare)) %>%
+        left_join(., dfc %>% filter(site == site_to_compare), by = "datetime") %>%
         select(datetime, T1f, T1) %>% 
         mutate(me = T1f-T1) %>%
         mutate(lag_T1 = me - lag(me)) %>%
@@ -1429,7 +1429,7 @@ for(i in sites){
       
       # Cross correlate site to others and extract the site with highest correlation
       temp2 %>%
-        left_join(., dfc) %>%
+        left_join(., dfc, by = "datetime") %>%
         filter(site != i) %>%
         mutate(T2 = ifelse(probl %in% c(0,3), T2, NA)) %>% 
         arrange(site, datetime) %>% 
@@ -1439,7 +1439,7 @@ for(i in sites){
         slice(1) %>% pull(site) -> site_to_compare
       
       temp2 %>%
-        left_join(., dfc %>% filter(site == site_to_compare)) %>%
+        left_join(., dfc %>% filter(site == site_to_compare), by = "datetime") %>%
         select(datetime, T2f, T2) %>% 
         mutate(me = T2f-T2) %>%
         mutate(lag_T2 = me - lag(me)) %>%
@@ -1516,7 +1516,7 @@ for(i in sites){
       
       # Cross correlate site to others and extract the site with highest correlation
       temp3 %>%
-        left_join(., dfc) %>%
+        left_join(., dfc, by = "datetime") %>%
         filter(site != i) %>%
         mutate(T3 = ifelse(probl %in% c(0,3), T3, NA)) %>% 
         arrange(site, datetime) %>% 
@@ -1526,7 +1526,7 @@ for(i in sites){
         slice(1) %>% pull(site) -> site_to_compare
       
       temp3 %>%
-        left_join(., dfc %>% filter(site == site_to_compare)) %>%
+        left_join(., dfc %>% filter(site == site_to_compare), by = "datetime") %>%
         select(datetime, T3f, T3) %>% 
         mutate(me = T3f-T3) %>%
         mutate(lag_T3 = me - lag(me)) %>%
@@ -1594,13 +1594,13 @@ for(i in sites){
     
     temp4 <- full_join(temp %>% filter(my == ii) %>% select(site, datetime, moist, date, probl),
                        temp1 %>% select(datetime, T1c) %>%
-                         rename(T1 = T1c))
+                         rename(T1 = T1c), by = "datetime")
     temp4 <- full_join(temp4,
                        temp2 %>% select(datetime, T2c) %>%
-                         rename(T2 = T2c))
+                         rename(T2 = T2c), by = "datetime")
     temp4 <- full_join(temp4,
                        temp3 %>% select(datetime, T3c) %>%
-                         rename(T3 = T3c))
+                         rename(T3 = T3c), by = "datetime")
     
     dftemp <- bind_rows(dftemp,temp4)
     
